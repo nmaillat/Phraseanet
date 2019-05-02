@@ -244,6 +244,52 @@ class QueryController extends Controller
 
             $infoResult = '<div id="docInfo">'
                 . $this->app->trans('%number% documents<br/>selectionnes', ['%number%' => '<span id="nbrecsel"></span>'])
+                . '<div class="detailed_info_holder"><img src="/assets/common/images/icons/dots.png" class="image-normal"><img src="/assets/common/images/icons/dots-darkgreen-hover.png" class="image-hover">'
+                . '<div class="detailed_info">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nb</th>
+                                <th>Type</th>
+                                <th>File size</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Audio</td>
+                                <td>1 Mb</td>
+                                <td>00:04:31</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Documents</td>
+                                <td>20 Kb</td>
+                                <td>N/A</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Images</td>
+                                <td>400 Kb</td>
+                                <td>N/A</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Video</td>
+                                <td>19 Mb</td>
+                                <td>00:20:36</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td>6</td>
+                                <td>Total</td>
+                                <td>24.20 Mb</td>
+                                <td>00:25:17</td>
+                            </tr>
+                        </tfoot>
+                    </table></div></div>'
                 . '</div><a href="#" class="search-display-info" data-infos="' . str_replace('"', '&quot;', $explain) . '">'
                 . $this->app->trans('%total% reponses', ['%total%' => '<span>'.$result->getTotal().'</span>']) . '</a>';
 
@@ -277,9 +323,14 @@ class QueryController extends Controller
 
 
             // add technical fields
-            $fieldLabels = [];
+            $fieldsInfosByName = [];
             foreach(ElasticsearchOptions::getAggregableTechnicalFields() as $k => $f) {
-                $fieldLabels[$k] = $this->app->trans($f['label']);
+                $fieldsInfosByName[$k] = $f;
+                $fieldsInfosByName[$k]['trans_label'] = $this->app->trans($f['label']);
+                $fieldsInfosByName[$k]['labels'] = [];
+                foreach($this->app->getAvailableLanguages() as $locale => $lng) {
+                    $fieldsInfosByName[$k]['labels'][$locale] = $this->app->trans($f['label'], [], "messages", $locale);
+                }
             }
 
             // add databox fields
@@ -291,13 +342,25 @@ class QueryController extends Controller
                 foreach ($databox->get_meta_structure() as $field) {
                     $name = $field->get_name();
                     $fieldsInfos[$sbasId][$name] = [
-                      'label' => $field->get_label($this->app['locale']),
-                      'type' => $field->get_type(),
+                      'label'    => $field->get_label($this->app['locale']),
+                      'labels'   => $field->get_labels(),
+                      'type'     => $field->get_type(),
                       'business' => $field->isBusiness(),
-                      'multi' => $field->is_multi(),
+                      'multi'    => $field->is_multi(),
                     ];
-                    if (!isset($fieldLabels[$name])) {
-                        $fieldLabels[$name] = $field->get_label($this->app['locale']);
+
+                    // infos on the "same" field (by name) on multiple databoxes !!!
+                    // label(s) can be inconsistants : the first databox wins
+                    if (!isset($fieldsInfosByName[$name])) {
+                        $fieldsInfosByName[$name] = [
+                            'label'       => $field->get_label($this->app['locale']),
+                            'labels'      => $field->get_labels(),
+                            'type'        => $field->get_type(),
+                            'field'       => $field->get_name(),
+                            'query'       => "field." . $field->get_name() . ":%s",
+                            'trans_label' => $field->get_label($this->app['locale']),
+                        ];
+                        $field->get_label($this->app['locale']);
                     }
                 }
             }
@@ -336,13 +399,28 @@ class QueryController extends Controller
 
             // populates facets (aggregates)
             $facets = [];
+            // $facetClauses = [];
             foreach ($result->getFacets() as $facet) {
                 $facetName = $facet['name'];
 
-                $facet['label'] = isset($fieldLabels[$facetName]) ? $fieldLabels[$facetName] : $facetName;
+                if(array_key_exists($facetName, $fieldsInfosByName)) {
 
-                $facets[] = $facet;
+                    $f = $fieldsInfosByName[$facetName];
+
+                    $facet['label'] = $f['trans_label'];
+                    $facet['labels'] = $f['labels'];
+                    $facet['type'] = strtoupper($f['type']) . "-AGGREGATE";
+                    $facets[] = $facet;
+
+                    // $facetClauses[] = [
+                    //    'type'  => strtoupper($f['type']) . "-AGGREGATE",
+                    //    'field' => $f['field'],
+                    //    'facet' => $facet
+                    // ];
+                }
             }
+
+            // $json['jsq'] = $facetClauses;
 
             $json['facets'] = $facets;
             $json['phrasea_props'] = $proposals;

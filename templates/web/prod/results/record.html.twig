@@ -8,11 +8,12 @@
      data-kind="{{ record.story ? 'REG' : 'RESULT' }}"
      data-position="{{ record.position|default(0) }}"
      data-id="{{ record.id }}"
+     data-record_id="{{ record.recordId }}"
      >
     <div style="padding: 4px;">
         <div style="height:40px; position: relative; z-index: 95;margin-bottom:0;border-bottom:none;">
             <div class="title" style="max-height:100%" title="{{ record.getTitle(app.locale) }}">
-                {{ record.getTitle(app.locale)|highlight }}
+                {{ record.getTitle(app.locale)|e|highlight }}
             </div>
             <div class="status">
                 {% for flag in record_flags(record) %}
@@ -110,25 +111,34 @@
                             <tbody>
                             <tr>
                                 <td>
-                                    <div class="context-menu context-menu-theme-vista">
+                                    <div class="context-menu context-menu-theme-flat">
                                         {% if granted_on_collection(record.baseId, [constant('\\ACL::CANPUTINALBUM')]) and not record.story %}
                                             <div title="" class="context-menu-item">
                                                 <div class="context-menu-item-inner record-add-to-basket-action" data-db-id="{{record.databoxId}}" data-record-id="{{record.recordId}}">
-                                                    {{ 'action : ajouter au panier' | trans }}
+                                                    <a title="{{ 'action : ajouter au panier' | trans }}" href="#">
+                                                        <img style="cursor:pointer;" src="/assets/common/images/icons/basket-1.png" alt="{{ 'action : ajouter au panier' | trans }}">
+                                                        <span>{{ 'action : ajouter au panier' | trans }}</span>
+                                                    </a>
                                                 </div>
                                             </div>
                                         {% endif %}
                                         {% if granted_on_collection(record.baseId, [constant('\\ACL::CANDWNLDPREVIEW')]) or granted_on_collection(record.baseId, [constant('\\ACL::CANDWNLDHD')]) %}
                                             <div title="" class="context-menu-item">
                                                 <div class="context-menu-item-inner record-export-action" data-kind="record" data-id="{{record.id}}">
-                                                    {{ 'action : exporter' | trans }}
+                                                    <a title="{{ 'action : exporter' | trans }}" href="#">
+                                                        <img style="cursor:pointer;" src="/assets/common/images/icons/export-shadow.png" alt="{{ 'action : exporter' | trans }}">
+                                                        <span>{{ 'action : exporter' | trans }}</span>
+                                                    </a>
                                                 </div>
                                             </div>
                                         {% endif %}
                                         <div title="" class="context-menu-item">
                                             <div class="context-menu-item-inner record-print-action"
                                                  data-kind="record" data-id="{{record.id}}">
-                                                {{ 'action : print' | trans }}
+                                                <a title="{{ 'action : print' | trans }}" href="#">
+                                                    <img style="cursor:pointer;" src="/assets/common/images/icons/print-shadow.png" alt="{{ 'action : print' | trans }}">
+                                                    <span>{{ 'action : print' | trans }}</span>
+                                                </a>
                                             </div>
                                         </div>
                                         {% if app['conf'].get(['registry', 'actions', 'social-tools']) == 'all'
@@ -137,7 +147,10 @@
                                             {% if record.story is empty %}
                                                 <div title="" class="context-menu-item">
                                                     <div class="context-menu-item-inner share-record-action" data-db="{{record.baseId}}" data-record-id="{{record.recordId}}">
-                                                        {{ 'reponses:: partager' | trans }}
+                                                        <a title="{{ 'reponses:: partager' | trans }}" href="#">
+                                                            <img style="cursor:pointer;" src="/assets/common/images/icons/Share.png" alt="{{ 'reponses:: partager' | trans }}">
+                                                            <span>{{ 'reponses:: partager' | trans }}</span>
+                                                        </a>
                                                     </div>
                                                 </div>
                                             {% endif %}

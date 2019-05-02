@@ -1,5 +1,5 @@
 // @import 'variables';
-$mainMenuHeight: 40px !default;
+$mainMenuHeight: 41px;
 $mainMenuLineHeight: 36px !default;
 $mainMenuBackgroundColor: #ffe000 !default;
 $mainMenuLinkColor: #000000 !default;
@@ -61,9 +61,7 @@ $mainMenuBottomBorder: none !default;
     display: inline-block;
   }
   #mainLogo {
-    margin:0 10px;
-    margin-top: 3px;
-
+    margin:0 5px;
   }
   li {
     display: inline-block;
