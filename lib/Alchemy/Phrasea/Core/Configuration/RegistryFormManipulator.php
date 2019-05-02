@@ -86,7 +86,7 @@ class RegistryFormManipulator
                 'force-push-authentication' => false,
                 'enable-feed-notification' => true,
                 'export-stamp-choice' => false,
-                'download-link-validity' => 0,
+                'download-link-validity' => 24,
             ],
             'ftp' => [
                 'ftp-enabled' => false,
@@ -104,6 +104,7 @@ class RegistryFormManipulator
                 'api-enabled' => true,
                 'navigator-enabled' => true,
                 'office-enabled' => true,
+                'adobe_cc-enabled' => true,
             ],
             'webservices' => [
                 'google-charts-enabled' => true,
@@ -188,12 +189,14 @@ class RegistryFormManipulator
 
     private function filterNullValues(array &$array)
     {
-        return array_filter($array, function (&$value) {
+        foreach ($array as $key => &$value) {
             if (is_array($value)) {
-                $value = $this->filterNullValues($value);
+                $this->filterNullValues($value);
             }
-
-            return null !== $value;
-        });
+            else if ($key !== 'geonames-server' && $value === null) {
+                unset($array[$key]);
+            }
+        }
+        return $array;
     }
 }

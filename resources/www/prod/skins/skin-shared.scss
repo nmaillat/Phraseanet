@@ -316,6 +316,34 @@ span.ww_winTitle {
 .chim-wrapper {
   position: relative;
   float: left;
+  margin-bottom: 20px;
+  .note_tips_holder {
+    .image-hover {
+      display: none;
+    }
+    &:hover {
+      .image-hover {
+        display: block;
+      }
+      .image-normal {
+        display: none;
+      }
+    }
+  }
+  span.feedback_user_name {
+    position: relative;
+    background: #292929;
+    padding-right: 9px;
+    z-index: 1;
+  }
+  span.line_separator {
+    position: absolute;
+    height: 45%;
+    width: calc(100% - 5px);
+    left: 0;
+    top: 0;
+    border-bottom: 1px solid #343434;
+  }
 }
 
 #tooltip {
@@ -995,6 +1023,30 @@ h4 {
   }
 }
 
+#tooltip.tooltip_flat {
+  border-radius: 5px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+  margin-left: 15px;
+  min-width: 280px !important;
+
+  .popover {
+    background-color: #535353;
+    width: 100% !important;
+    border: 0 none;
+    border-radius: 0;
+
+    .popover-inner {
+      border: 0 none;
+      border-radius: 6px;
+
+      .popover-content {
+        background-color: #535353;
+        padding: 10px;
+      }
+    }
+  }
+}
+
 .dragover {
   BACKGROUND-COLOR: #fff100
 }
@@ -1093,6 +1145,17 @@ h4 {
   }
 }
 
+.color-dot {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid #FFFFFF;
+  vertical-align: middle;
+  margin-bottom: 4px;
+  margin-top: 3px;
+}
+
 @import 'ui-components/jquery-ui';
 @import 'ui-components/context-menu';
 @import 'ui-components/forms';
@@ -1122,3 +1185,4 @@ h4 {
 @import 'ui-components/modal-push';
 @import 'ui-components/diapo';
 @import 'ui-components/modal-preferences';
+@import 'ui-components/modal-advanced-search';
